@@ -1,0 +1,5 @@
+>,Recurrence Label,survival(>1000alive),Lymphovascular invasion label,AJCC label,Pleural invasion label,Histology label,AJCC,Pathological N stage Label,Pathological T stage Label,Histopathological grade label,Pathological T stage Label2
+
+Method3,0.76000001,0.73897059,0.74350649,0.72792208,0.75789474,0.74242425,0.82475694,0.7857143,0.79842424,0.77629632,0.76007695
+Method4,0.70095237,0.84375,0.76190476,0.65809524,0.81842105,0.88860029,0.77456349,0.75286196,0.84727272,0.7965812,0.83269842
+Previous,0.8043,0.80,0.86,0.86,,0.82,,,0.8505,,
