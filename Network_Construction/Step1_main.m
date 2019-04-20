@@ -4,7 +4,7 @@ addpath('../Read ROI and construct graph/');
 addpath('../Compute graph-based features/');
 
 %	read dataset from rootPath
-rootPath = 'C:\Users\37908\Documents\MATLAB\Graph_Based_Analysis\data\Data_1108\radiogenomics_PET.mat';
+rootPath = './lung data_latest version/radiogenomics_PET.mat';
 load(rootPath);
 
 nameArray = dataset.nameArray;
