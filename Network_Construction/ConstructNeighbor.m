@@ -8,11 +8,14 @@ function valueNearby = ConstructNeighbor(imageWithROI,map)
 		b = floor((i - floor(i / box_len^2)*box_len^2)/box_len) + 1;
 		c = floor(i/box_len^2) + 1;
 		mask(i+1,:) = [seq(c),seq(b),seq(a)];
+        %fprintf('seqc is %d c%d seqb is %d b%d seqa is %d a%d\n',seq(c), c,seq(b), b,seq(a), a);
 	end
 	
 	[width,height,depth]=size(imageWithROI);
 	valueNearby = cell(width,height,depth);
 	for i = 1:width
+        disp('i')
+        disp(i)
 		for j = 1:height
 			for k = 1:depth
 				if (~isnan(imageWithROI(i,j,k)) && (imageWithROI(i,j,k)~=0))

@@ -16,7 +16,7 @@ graphWithROIs=cell(nFiles,1);
 name_array = cell(nFiles,1);
 SUVpara = zeros(nFiles,1);
 nPetROIs=0;
-
+nFiles = 1
 for k=1:nFiles
    % for kk=1:nROIs
 	   image=imageSUV{k,1};

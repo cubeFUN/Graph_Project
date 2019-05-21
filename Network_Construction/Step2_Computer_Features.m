@@ -9,7 +9,7 @@ clear
 
 addpath('../Compute graph-based features');
 addpath('../statistical analysis')
-T = load('./graphWithROIs.mat');
+T = load('./graphWithROIs_p.mat');
 
 graphWithROIs = T.res;
 nPetROIs=length(graphWithROIs);

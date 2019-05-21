@@ -19,7 +19,7 @@ function [ graphWithROIs ] = ROI2graphCorrelation(imageWithROI)
 	end
 
     [width,height,depth]=size(imageWithROI);
-    
+
     map=zeros(width,height,depth);
     nNodes=0;
     for i=1:width
@@ -34,7 +34,7 @@ function [ graphWithROIs ] = ROI2graphCorrelation(imageWithROI)
 	end
 	
 	valueNearby = ConstructNeighbor(imageWithROI,map);
-	
+	%disp(valueNearby)
     graphWithROIs=zeros(nNodes,nNodes);
     for i=1:width
         for j=1:height
@@ -48,6 +48,10 @@ function [ graphWithROIs ] = ROI2graphCorrelation(imageWithROI)
 								if (map(ii,jj,kk)>node0)
 									node1=map(ii,jj,kk);
 									value1=valueNearby{ii,jj,kk};
+                                    %disp('value0')
+									%disp(value0)
+                                    %disp('value1')
+									%disp(value1)
 									correlation = ComputeNormalizedCorrelation(value0,value1);
 									graphWithROIs(int16(node0),int16(node1)) = correlation;  
 									graphWithROIs(int16(node1),int16(node0)) = correlation; 
