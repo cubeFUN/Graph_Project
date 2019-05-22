@@ -11,25 +11,26 @@ addpath('../Compute graph-based features');
 addpath('../statistical analysis')
 T = load('./graphWithROIs_p.mat');
 
-graphWithROIs = T.res;
+graphWithROIs = T.dataset.graphWithROIs;
 nPetROIs=length(graphWithROIs);
 
 features=zeros(nPetROIs,32);
 %calculate features
 %min&max spanning tree
 %%
+%{
 fprintf('----------1+2----------');
 for k=1:nPetROIs
     fprintf('Processing %d th records, waiting...\n',k);
-    % max ×î´óÉú³ÉÊ÷ »áºÍµ±Ç°caseµÄpixelÊıÄ¿¶àÉÙÓĞ¹Ø£¨Í¨³£³ÉÕı±È
-    % ±ÈÈçµÚÒ»¸öcase ROIÇøÓò±ß³¤Îª57£¬µÚÈı¸öcase±ß³¤Îª654
-    % ¶ÔÓ¦Á½ÕßµÄfeatureÒ²ÊÇÏà²îÒ»¸öÊıÁ¿¼¶µÄ¹ØÏµ
+    % max æœ€å¤§ç”Ÿæˆæ ‘ ä¼šå’Œå½“å‰caseçš„pixelæ•°ç›®å¤šå°‘æœ‰å…³ï¼ˆé€šå¸¸æˆæ­£æ¯”
+    % æ¯”å¦‚ç¬¬ä¸€ä¸ªcase ROIåŒºåŸŸè¾¹é•¿ä¸º57ï¼Œç¬¬ä¸‰ä¸ªcaseè¾¹é•¿ä¸º654
+    % å¯¹åº”ä¸¤è€…çš„featureä¹Ÿæ˜¯ç›¸å·®ä¸€ä¸ªæ•°é‡çº§çš„å…³ç³»
     grapht=-graphWithROIs{k};
     graph_sparse=sparse(grapht);
     [tree,pred]=graphminspantree(graph_sparse,'Method', 'Kruskal');
     features(k,1)=-sum(sum(tree)) / size(graphWithROIs{k},1);
     
-    %min ×îĞ¡Éú³ÉÊ÷
+    %min æœ€å°ç”Ÿæˆæ ‘
     grapht=graphWithROIs{k};
     graph_sparse=sparse(grapht);
     [tree,~]=graphminspantree(graph_sparse,'Method', 'Kruskal');
@@ -164,11 +165,11 @@ end
 %     efficiency=efficiency/((nNodes*nNodes-nNodes)/2);
 %     features(k,12)=efficiency;
 % end
-
+%}
 %max, min and average betweenness
 %end
-% ÖĞ½éÖĞĞÄĞÔÖ¸µÄÊÇÒ»¸ö½áµãµ£ÈÎÆäËüÁ½¸ö½áµãÖ®¼ä×î¶ÌÂ·µÄÇÅÁºµÄ´ÎÊı
-% Õâ¸öÒª³¬¼¶¾ÃµÄ »¹Ã»ÅÜ ÍíÉÏÅÜ°É
+% ä¸­ä»‹ä¸­å¿ƒæ€§æŒ‡çš„æ˜¯ä¸€ä¸ªç»“ç‚¹æ‹…ä»»å…¶å®ƒä¸¤ä¸ªç»“ç‚¹ä¹‹é—´æœ€çŸ­è·¯çš„æ¡¥æ¢çš„æ¬¡æ•°
+% è¿™ä¸ªè¦è¶…çº§ä¹…çš„ è¿˜æ²¡è·‘ æ™šä¸Šè·‘å§
 disp('13 14 15 max, min and average betweenness');
 for k=1:nPetROIs
     fprintf('Processing %d th records, waiting...\n',k);
@@ -182,7 +183,7 @@ for k=1:nPetROIs
         %disp('first loop');
         for j=1:nNodes
             if dist(i,j)==0 && i~=j
-                % ²»Á¬Í¨¾Í¼ÇÎªÕıÎŞÇî
+                % ä¸è¿é€šå°±è®°ä¸ºæ­£æ— ç©·
                 dist(i,j)=inf;
             end
             if i==j || dist(i,j)~=0
@@ -192,8 +193,8 @@ for k=1:nPetROIs
     end
     for t=1:nNodes
         t
-        % Ñ°ÕÒÊ±ºò¿ÉÒÔÍ¨¹ıµÚÈıµãÀ´ÕÒµ½¸ü¶ÌµÄÂ·¾¶ 
-        % path¼ÇÂ¼µÄÊÇËù¾­¹ıµÄÖĞ¼äµã£¨Èç¹ûÃ»ÓĞµÄ»°¾ÍÓÃÖÕµã´úÌæ
+        % å¯»æ‰¾æ—¶å€™å¯ä»¥é€šè¿‡ç¬¬ä¸‰ç‚¹æ¥æ‰¾åˆ°æ›´çŸ­çš„è·¯å¾„ 
+        % pathè®°å½•çš„æ˜¯æ‰€ç»è¿‡çš„ä¸­é—´ç‚¹ï¼ˆå¦‚æœæ²¡æœ‰çš„è¯å°±ç”¨ç»ˆç‚¹ä»£æ›¿
         for i=1:nNodes
             for j=1:nNodes
                 if dist(i,t)+dist(t,j) < dist(i,j)
@@ -318,12 +319,12 @@ end
 % for k=1:nPetROIs
 %      fprintf('Processing %d th records, waiting...\n',k);
 %      PetROI=imageWithROIs{k};
-%      % Èç¹ûÒÑÖªµÄÒÑ¾­ÊÇ³ıÒÔÌåÖØÒÔºóµÄSUVÁË£¬ÄÇÃ´ÕâÀï¾ÍÖ±½Ófeatures(k,23) = SUV¾ÍºÃÁË
+%      % å¦‚æœå·²çŸ¥çš„å·²ç»æ˜¯é™¤ä»¥ä½“é‡ä»¥åçš„SUVäº†ï¼Œé‚£ä¹ˆè¿™é‡Œå°±ç›´æ¥features(k,23) = SUVå°±å¥½äº†
 %      features(k,24)=SUVmean(k,1);
 % end
 % save ./Data_1108/features_24.mat features -v7.3
 
-%% Ôö¼ÓMITÌáÈ¡network featureµÄ´úÂë
+%% å¢åŠ MITæå–network featureçš„ä»£ç 
 
 %edge number
 disp('25 edge numbers');
@@ -377,7 +378,7 @@ for k=1:nPetROIs
 end
 
 %% too slow, avoid
-% % Ã»ËãÍê£¡£¡£¡Ì«ÂıÁË£¡£¡£¡
+% % æ²¡ç®—å®Œï¼ï¼ï¼å¤ªæ…¢äº†ï¼ï¼ï¼
 disp('31 diameter of the graph');
 for k=1:nPetROIs
     fprintf('Processing %d th records, waiting...\n',k);
