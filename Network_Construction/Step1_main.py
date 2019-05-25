@@ -4,20 +4,21 @@ from ROI2graphCorrelation import ROI2graphCorrelation
 
 if __name__ == '__main__':
     # read dataset from rootPath
-    mat_contents = sio.loadmat('./lung data_latest version/radiogenomics_PET.mat')
+    mat_contents = sio.loadmat('./lung data_latest version/radiogenomics_CT.mat')
 
     #print(mat_contents)
     nameArray = mat_contents['dataset'][0][0][0]
     #print(nameArray)
     imageSUV = mat_contents['dataset'][0][0][1]
     #print(imageSUV)
-    #nFiles = len(imageSUV)
-    nFiles = 10
+    nFiles = len(imageSUV)
+    #nFiles = 10
     imageWithROIs = np.empty([nFiles, 1], dtype=object)
     graphWithROIs = np.empty([nFiles, 1], dtype=object)
     name_array = np.empty([nFiles, 1], dtype=object)
     #print(name_array)
-    SUVpara = np.zeros([nFiles, 1])
+    #SUVpara = np.zeros([nFiles, 1])
+    SUVpara = mat_contents['dataset'][0][0][7]
     nPetROIs = 0
 
     for k in range(0, nFiles):
@@ -38,6 +39,6 @@ if __name__ == '__main__':
         nPetROIs += 1
     
     #print('graph rois {} suv {}'.format(graphWithROIs, SUVpara))
-    sio.savemat('imageWithROIs_p.mat', {'dataset':{'imageWithROIs': imageWithROIs}})
-    sio.savemat('graphWithROIs_p.mat', {'dataset':{'graphWithROIs': graphWithROIs}})
-    sio.savemat('SUVpara_p.mat', {'dataset':{'SUVpara': SUVpara}})
+    sio.savemat('imageWithROIs_all_CT.mat', {'dataset':{'imageWithROIs': imageWithROIs}})
+    sio.savemat('graphWithROIs_all_CT.mat', {'dataset':{'graphWithROIs': graphWithROIs}})
+    sio.savemat('HUpara_all_CT.mat', {'dataset':{'HUpara': SUVpara}})

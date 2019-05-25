@@ -7,30 +7,42 @@
 %	output: features(21 graph-based features+heterogeneity+SUVmean)
 clear
 
-addpath('../Compute graph-based features');
-addpath('../statistical analysis')
-T = load('./graphWithROIs_p.mat');
-
+addpath('./Compute graph-based features');
+addpath('./statistical analysis')
+addpath('../Network Analysis')
+T = load('./graphWithROIs_all.mat');
+S = load('./imageWithROIs_all.mat');
 graphWithROIs = T.dataset.graphWithROIs;
+imageWithROIs = S.dataset.imageWithROIs;
+
+rootPath = './lung data_latest version/radiogenomics_CT.mat';
+lung_data = load(rootPath);
+xyzStep = lung_data.dataset.xyzStep;
+
 nPetROIs=length(graphWithROIs);
 
 features=zeros(nPetROIs,32);
 %calculate features
 %min&max spanning tree
 %%
-%{
+ignore_case = [10,22,28,35,39,51,59,60,62,85,92,94,115,119,124,125,127,128,129,130,132,136];
+%ignore_case = [];
 fprintf('----------1+2----------');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
-    % max 最大生成树 会和当前case的pixel数目多少有关（通常成正比
-    % 比如第一个case ROI区域边长为57，第三个case边长为654
-    % 对应两者的feature也是相差一个数量级的关系
+    % max ??????????????? ????????????case???pixel????????????????????????????????????
+    % ???????????????case ROI???????????????57????????????case?????????654
+    % ???????????????feature????????????????????????????????????
     grapht=-graphWithROIs{k};
     graph_sparse=sparse(grapht);
     [tree,pred]=graphminspantree(graph_sparse,'Method', 'Kruskal');
     features(k,1)=-sum(sum(tree)) / size(graphWithROIs{k},1);
     
-    %min 最小生成树
+    %min ???????????????
     grapht=graphWithROIs{k};
     graph_sparse=sparse(grapht);
     [tree,~]=graphminspantree(graph_sparse,'Method', 'Kruskal');
@@ -40,6 +52,10 @@ end
 %min&max eigenvalue
 fprintf('----------3+4----------');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     graph=graphWithROIs{k};
     graph(isnan(graph)) = 0;
@@ -53,6 +69,10 @@ end
 % sum(sum(sum(~(isnan(tmp)))))
 disp('5 number of nodes');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     features(k,5)=size(graphWithROIs{k},1);
 end
@@ -60,6 +80,10 @@ end
 %max node degree & average node degree
 disp('6 7 max node degree & average node degree');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     graph=graphWithROIs{k};
     nNodes=size(graph,1);
@@ -83,6 +107,10 @@ end
 %max node degree & average node degree(with weight)
 disp('8 9max node degree & average node degree(with weight)');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     graph=graphWithROIs{k};
     nNodes=size(graph,1);
@@ -104,6 +132,10 @@ end
 %network density
 disp('10 network density');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     graph=graphWithROIs{k};
     nNodes=size(graph,1);
@@ -126,6 +158,10 @@ end
 %weighted network density
 disp('11 weighted network density');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     graph=graphWithROIs{k};
     nNodes=size(graph,1);
@@ -144,46 +180,89 @@ for k=1:nPetROIs
 end
 
 % %global efficiency
-% disp('12 global efficiency');
-% for k=1:nPetROIs
-%     fprintf('Processing %d th records, waiting...\n',k);
-%     graph=graphWithROIs{k};
-%     graph(isnan(graph)) = 0;
-%     graph_sparse=sparse(graph);
-%     nNodes=size(graph,1);
-%     if nNodes==1
-%         features(k,12)=1;
-%         continue;
-%     end
-%     dist=graphallshortestpaths(graph_sparse);
-%     efficiency=0.0;
-%     for i=1:nNodes
-%         for j=1:i-1
-%             efficiency=efficiency+1.0/dist(i,j);
-%         end
-%     end
-%     efficiency=efficiency/((nNodes*nNodes-nNodes)/2);
-%     features(k,12)=efficiency;
-% end
+%{
+disp('12 global efficiency');
+for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
+    fprintf('Processing %d th records, waiting...\n',k);
+    graph=graphWithROIs{k};
+    graph(isnan(graph)) = 0;
+    graph_sparse=sparse(graph);
+    nNodes=size(graph,1);
+    if nNodes==1
+        features(k,12)=1;
+        continue;
+    end
+    dist=graphallshortestpaths(graph_sparse);
+    efficiency=0.0;
+    for i=1:nNodes
+        for j=1:i-1
+            efficiency=efficiency+1.0/dist(i,j);
+        end
+    end
+    efficiency=efficiency/((nNodes*nNodes-nNodes)/2);
+    features(k,12)=efficiency;
+end
 %}
+
 %max, min and average betweenness
 %end
-% 中介中心性指的是一个结点担任其它两个结点之间最短路的桥梁的次数
-% 这个要超级久的 还没跑 晚上跑吧
+% ?????????????????????????????????????????????????????????????????????????????????????????????
+% ????????????????????? ????????? ????????????
+
+
 disp('13 14 15 max, min and average betweenness');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     graph=graphWithROIs{k};
     nNodes=size(graph,1);
     betweenness=zeros(nNodes,1);
     dist=graph;
-    path=zeros(nNodes,nNodes);
+    %graph_sparse=sparse(graph);
+    %dist = graphallshortestpaths(graph_sparse);
+    path=zeros(nNodes,nNodes);%not connected
+
+    % undirected graph no need to scan all i j & j i
+    for i=1:nNodes
+        for j=i:nNodes
+            if dist(i,j)==0 && i~=j
+                dist(i,j)=inf;
+                dist(j,i)=inf;
+            else
+                dist(i,j) = abs(dist(i,j)); %??????????????????????????????????????????
+                dist(j,i) = dist(i,j);
+                path(i,j)=j; %initial path
+                path(j,i)=i;
+            end
+        end
+    end
+
+    %floyd algorithm
+    for t=1:nNodes
+        for i=1:nNodes
+            for j=1:nNodes
+                if dist(i,t) + dist(t,j) < dist(i,j)
+                    dist(i,j) = dist(i,t) + dist(t,j);
+                    path(i,j) = path(i,t);
+                end
+            end
+        end
+    end
+
+    %{            
     for i=1:nNodes
         i
         %disp('first loop');
         for j=1:nNodes
             if dist(i,j)==0 && i~=j
-                % 不连通就记为正无穷
+                % ???????????????????????????
                 dist(i,j)=inf;
             end
             if i==j || dist(i,j)~=0
@@ -191,12 +270,16 @@ for k=1:nPetROIs
             end
         end
     end
+    
+    %dist = sparse(dist)
+    %dist = graphallshortestpaths(dist)
+
     for t=1:nNodes
         t
-        % 寻找时候可以通过第三点来找到更短的路径 
-        % path记录的是所经过的中间点（如果没有的话就用终点代替
+        % ????????????????????????????????????????????????????????? 
+        % path????????????????????????????????????????????????????????????????????????
         for i=1:nNodes
-            for j=1:nNodes
+            for j=1:nNodes %1:nNodes->i:nNodes
                 if dist(i,t)+dist(t,j) < dist(i,j)
                     dist(i,j)=dist(i,t)+dist(t,j);
                     path(i,j)=path(i,t);
@@ -204,8 +287,10 @@ for k=1:nPetROIs
             end
         end
     end
+    %}
+    
     for i=1:nNodes
-        i
+        %i
         for j=1:i-1
             s=i;t=j;route=s;
             while true
@@ -221,7 +306,8 @@ for k=1:nPetROIs
             end
         end
     end
-    totalWay = nNodes * (nNodes-1);
+    
+    totalWay = nNodes * (nNodes-1) / 2; % /2
     betweenness = betweenness ./ totalWay;
     
     betweennessMax=max(betweenness);
@@ -232,9 +318,14 @@ for k=1:nPetROIs
     features(k,15)=betweennessAvg;
 end
 
+
 %graph energy
 disp('16 graph energy');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     graph=graphWithROIs{k};
     graph(isnan(graph)) = 0;
@@ -246,6 +337,10 @@ end
 %modularity 
 disp('17 modularity');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     graph=graphWithROIs{k};
     graph(isnan(graph)) = 0;
@@ -258,6 +353,10 @@ end
 %cluster coeffient max,min,average
 disp('18 19 20 cluster coeffient max,min,average');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     graph=graphWithROIs{k};
     graph(isnan(graph)) = 0;
@@ -270,6 +369,10 @@ end
 %top 5\% eigenvalue weights
 disp('21 eigenvalue weights');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     graph=graphWithROIs{k};
     graph(isnan(graph)) = 0;
@@ -286,6 +389,10 @@ end
 % degree distribution
 disp('22 degree distribution');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     graph=graphWithROIs{k};
     graph(isnan(graph)) = 0;
@@ -306,6 +413,10 @@ end
 %heterogeneity
 disp('23 heterogeneity');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     NaIdx=find(isnan(imageWithROIs{k}));
     PetROI=imageWithROIs{k};
@@ -315,57 +426,80 @@ for k=1:nPetROIs
 end
 
 %SUV mean
-% disp('24 SUV mean');
-% for k=1:nPetROIs
-%      fprintf('Processing %d th records, waiting...\n',k);
-%      PetROI=imageWithROIs{k};
-%      % 如果已知的已经是除以体重以后的SUV了，那么这里就直接features(k,23) = SUV就好了
-%      features(k,24)=SUVmean(k,1);
-% end
-% save ./Data_1108/features_24.mat features -v7.3
+%{
+disp('24 SUV mean');
+for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
+     fprintf('Processing %d th records, waiting...\n',k);
+     PetROI=imageWithROIs{k};
+%     ?????????????????????????????????????????????SUV???????????????????????????features(k,23) = SUV?????????
+     features(k,24)=SUVmean(k,1);
+end
+%save ./Data_1108/features_24.mat features -v7.3
 
-%% 增加MIT提取network feature的代码
-
+%??????MIT??????network feature?????????
+%}
 %edge number
 disp('25 edge numbers');
 for k=1:nPetROIs
-     fprintf('Processing %d th records, waiting...\n',k);
-     PetROI=graphWithROIs{k};
-     features(k,25) = numedges(PetROI);
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
+    fprintf('Processing %d th records, waiting...\n',k);
+    PetROI=graphWithROIs{k};
+    features(k,25) = numedges(PetROI);
 end
 
-%edge number
+%pearsondegreeCorr
 disp('26');
 for t=1:nPetROIs
-     fprintf('Processing %d th records, waiting...\n',t);
-     M=graphWithROIs{t};
-     [rows,~]=size(M);
-     won=ones(rows,1);
-     k=won'*M;
-     ksum=won'*k';
-     ksqsum=k*k';
-     xbar=ksqsum/ksum;
-     num=(won'*M-won'*xbar)*M*(M*won-xbar*won);
-     M*(M*won-xbar*won);
-     kkk=(k'-xbar*won).*(k'.^.5);
-     denom=kkk'*kkk;
-     prs=num/denom;
-     features(t,26) = prs;
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
+    fprintf('Processing %d th records, waiting...\n',t);
+    M=graphWithROIs{t};
+    [rows,~]=size(M);
+    won=ones(rows,1);
+    k=won'*M;
+    ksum=won'*k';
+    ksqsum=k*k';
+    xbar=ksqsum/ksum;
+    num=(won'*M-won'*xbar)*M*(M*won-xbar*won);
+    M*(M*won-xbar*won);
+    kkk=(k'-xbar*won).*(k'.^.5);
+    denom=kkk'*kkk;
+    prs=num/denom;
+    features(t,26) = prs;
 end
+
 
 disp('27 sum of products of degrees across all edges');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
      fprintf('Processing %d th records, waiting...\n',k);
      PetROI=graphWithROIs{k};
-     features(k,27) = sMetric(PetROI);
+     features(k,27) = s_metric(PetROI);
 end
+
 
 disp('28 29 30 The max and min eigenvalues of the Laplacian of the graph');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
      fprintf('Processing %d th records, waiting...\n',k);
      PetROI=graphWithROIs{k};
      PetROI(isnan(PetROI)) = 0;
-     eigvalue = graphSpectrum(PetROI);
+     eigvalue = graph_spectrum(PetROI);
 
      eigvalue_abs=eigvalue;
      [sorted_eigvalue,sorted_idx_eig]=sort(eigvalue_abs,'descend');
@@ -378,28 +512,41 @@ for k=1:nPetROIs
 end
 
 %% too slow, avoid
-% % 没算完！！！太慢了！！！
+% % ????????????????????????????????????
+
 disp('31 diameter of the graph');
-for k=1:nPetROIs
+for k=nPetROIs:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     PetROI=graphWithROIs{k};
     PetROI(isnan(PetROI)) = 0;
    % if(size(PetROI,1) > 5000)
    %    features(k,31) = 0;
    % else
-       features(k,31) = diameter(PetROI);
+    features(k,31) = diameter(PetROI);
    % end
 end
 
+
+
+
 disp('32 Number of star motifs of the graph');
 for k=1:nPetROIs
+    if ismember(k, ignore_case)
+        fprintf('Ignoring %d th records, next...\n',k);
+        continue;
+    end
     fprintf('Processing %d th records, waiting...\n',k);
     PetROI=graphWithROIs{k};
     PetROI(isnan(PetROI)) = 0;
-    features(k,32) = avePathLength(PetROI);
+    features(k,32) = ave_path_length(PetROI);
 end
 
 %%
+disp('features scaled')
 features_scaled = zeros(size(features));
 features(isnan(features)) = 0;
 for i = 1:size(features,2)
@@ -407,4 +554,8 @@ for i = 1:size(features,2)
     MIN = min(features(:,i));
     features_scaled(:,i) = (features(:,i) - MIN) ./ (MAX - MIN);
 end
-save ./features_scaled.mat features_scaled -v7.3
+
+
+disp('save')
+save ./features_scaled_CT_v0.mat features_scaled -v7.3
+save ./features_noscaled_CT_v0.mat features -v7.3
