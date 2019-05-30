@@ -32,8 +32,8 @@ from scipy import io
 from sklearn import metrics
 
 root = './data'
-label_name = 'label_2.txt'
-feature_name = 'features.txt'
+label_name = 'label_c_v1.txt'
+feature_name = 'feature_v4_recurrence.txt'
 
 # set IF_SMOTE to 1 to do SMOTE to training and testing data respectively
 IF_SMOTE = 1
@@ -43,21 +43,21 @@ label_path = root+'/'+label_name
 
 featuresALL = np.loadtxt(feature_path)
 labelALL = np.loadtxt(label_path)
-label_num = labelALL.shape[1]
+label_num = 1#labelALL.shape[1]
 
 acc_mean = np.zeros((1, label_num))
 spe_mean = np.zeros((1, label_num))
 sen_mean = np.zeros((1, label_num))
 auc_mean = np.zeros((1, label_num))
 
-for tt_label in [0, 1]:#np.arange(label_num):
-    label = labelALL[:, tt_label]
+for tt_label in [0, 0]:#np.arange(label_num):
+    label = labelALL#[:, tt_label]
     features = featuresALL[~np.isnan(label), :]
     label = label[~np.isnan(label)]
     label = label[np.sum(np.isnan(features), axis=1) == 0]
     features = features[np.sum(np.isnan(features), axis=1) == 0, :]
 
-    epoch_num = 2000
+    epoch_num = 1500
     labelNum = len(set(label))
     featureNum = features.shape[1]
     caseNum = features.shape[0]
@@ -77,7 +77,7 @@ for tt_label in [0, 1]:#np.arange(label_num):
     ])
 
     # two optimizers
-    # optim = SGD(lr=1e-2, momentum=0.0, decay=1e-8, nesterov=False) #RMSprop(lr=1e-4, rho=0.9, decay=1e-6)
+    #optim = SGD(lr=1e-2, momentum=0.0, decay=1e-8, nesterov=False) #RMSprop(lr=1e-4, rho=0.9, decay=1e-6)
     optim = Adadelta(lr=1, epsilon=None, decay=1e-06)  # 1e-2
 
     # define holder of results

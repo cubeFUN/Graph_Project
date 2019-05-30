@@ -6,10 +6,11 @@ from imblearn.over_sampling import RandomOverSampler
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_auc_score
 import matplotlib.pyplot as plt
 from keras.utils import np_utils
+from sklearn.model_selection import GridSearchCV
 
 root = './data'
-label_name = 'label_2.txt'
-feature_name = 'features.txt'
+label_name = 'label_c_v1.txt'
+feature_name = 'features_combine_p_v1.txt'
 
 # set IF_SMOTE to 1 to do SMOTE to training and testing data respectively
 IF_SMOTE = 1
@@ -19,7 +20,7 @@ label_path = root+'/'+label_name
 
 featureALL = np.loadtxt(feature_path)
 labelALL = np.loadtxt(label_path)
-label_num = labelALL.shape[1]
+label_num = 1#labelALL.shape[1]
 
 tt_label = 0
 total_acc = 0
@@ -31,8 +32,8 @@ sen_test = np.zeros((label_num, n_splits))
 auc_test = np.zeros((label_num, n_splits))
 
 for tt_label in np.arange(label_num):
-    label = labelALL[:, tt_label]
-    features = featureALL[~np.isnan(label), :]
+    label = labelALL#[:, tt_label]
+    features = featureALL#[~np.isnan(label), :]
     label = label[~np.isnan(label)]
     label = label[np.sum(np.isnan(features), axis=1) == 0]
     features = features[np.sum(np.isnan(features), axis=1) == 0, :]
@@ -65,8 +66,8 @@ for tt_label in np.arange(label_num):
 
         param = {'learning_rate':       0.1,
                  'scale_pos_weight':    20,
-                 'n_estimators':        500,
-                 'max_depth':           5,
+                 'n_estimators':        1200,
+                 'max_depth':           3,
                  'min_child_weight':    1,
                  'subsample':           0.6,
                  'colsample_bytree':    0.6,
@@ -85,8 +86,8 @@ for tt_label in np.arange(label_num):
         # evaluate predictions
         accuracy_test[tt_label, count] = accuracy_score(y_test, pred)
         c = confusion_matrix(y_test, pred)
-        sen_test[tt_label, count] = c[0, 0] / (c[0, 1] + c[0, 0])
-        spe_test[tt_label, count] = c[1, 1] / (c[1, 1] + c[1, 0])
+        sen_test[tt_label, count] = float(c[0, 0]) / float(c[0, 1] + c[0, 0])
+        spe_test[tt_label, count] = float(c[1, 1]) / float(c[1, 1] + c[1, 0])
         auc_test[tt_label, count] = roc_auc_score(y_test, pred)
 
         pred_train = clf.predict(X_train)
@@ -106,5 +107,4 @@ print('test acc:', acc_mean_test)
 print('sen:', sen_mean)
 print('spe:', spe_mean)
 print('AUC:', auc_mean)
-
 
